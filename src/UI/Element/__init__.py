@@ -1,0 +1,9 @@
+import pygame.event
+
+
+class Element:
+    def __init__(self, state: bool = True):
+        self.state = state
+    def on_update(self): ...
+    def on_input(self, event: pygame.event.Event): ...
+    def on_draw(self, ui): ...
