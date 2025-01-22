@@ -12,7 +12,7 @@ import pygame
 class App:
     def __init__(self):
         pygame.init()
-        # os.environ["SDL_IME_SHOW_UI"] = "1"
+        os.environ["SDL_IME_SHOW_UI"] = "1"
 
         pygame.display.set_icon(icon)
         pygame.display.set_caption(f"{windows_title} {Editor.Version}")

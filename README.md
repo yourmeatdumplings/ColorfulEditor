@@ -9,6 +9,8 @@ Json editor!
 * pillow==11.1.0
 * pygame==2.6.1
 * pyinstaller==6.11.1
+* pyperclip==1.9.0
+
 ### 安装指令
 ```
 python.exe install.py

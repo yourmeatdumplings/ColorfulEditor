@@ -6,4 +6,5 @@ class MainUI(UI):
         super().__init__(state)
 
     def init(self):
-        self.add('input', Input(size=60, cursor_color='green', cursor_flicker=False))
+        input_elem = Input(size=60)
+        self.add('input', input_elem)
