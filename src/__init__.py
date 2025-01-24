@@ -1,3 +1,7 @@
+from src.Data import init
+
+init()
+
 from src.Libs.tool import *
 from src.Page.Manager import PageManager
 from src.Page.Manager.save_page import *

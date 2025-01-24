@@ -7,18 +7,16 @@ from pygame.color import Color
 from src import default_font, get_global_height
 from src.Libs.display import get_global_size, get_global_width
 from src.Libs.timer import CountTimer
-from src.Style import InputMode, EnterMode
 from src.UI.Element import Element
 
 class Input(Element):
-    def __init__(self, default_text: str = 'InputBox', mode: InputMode = InputMode.TextInputMode, enter_mode: EnterMode = EnterMode.Submit, x: int = 0, y: int = 0, width: int = 100, size: int = 20, color: str | tuple[int,int,int] | Color = 'white', is_outline: bool = True, outline_size: int = 2, outline_color: str | tuple[int,int,int] | Color= 'gray',cursor_flicker: bool = True, cursor_width: int = 2, cursor_color: str | tuple[int,int,int] | Color = 'white',cursor_flicker_interval: int = 30, start_delete: float = 0.3, delete_interval: int = 2, start_control: float = 0.3, control_interval: int = 2, choose_color: str | tuple[int,int,int] | Color = 'blue', font: str = default_font, state: bool = True):
+    def __init__(self, default_text: str = 'InputBox', mode: str = 'text', enter_mode: str = 'submit', x: int = 0, y: int = 0, width: int = 100, fixed_width: bool = False, size: int = 20, color: str | tuple[int,int,int] | Color = 'white', is_outline: bool = True, outline_size: int = 2, outline_color: str | tuple[int,int,int] | Color= 'gray', cursor_flicker: bool = True, cursor_width: int = 2, cursor_color: str | tuple[int,int,int] | Color = 'white',cursor_flicker_interval: int = 30, start_delete: float = 0.3, delete_interval: int = 2, start_control: float = 0.3, control_interval: int = 2, choose_color: str | tuple[int,int,int] | Color = 'blue', font: str = default_font, state: bool = True):
         super().__init__(state)
 
         self.config: dict[str: Any] = {
             "EnableCopying": True,
             "EnablePasting": True,
             "EnableCutting": True,
-            # "EnableOutline": is_outline
         }
 
         self.input_mode = mode
@@ -31,6 +29,9 @@ class Input(Element):
         self.color = color
         self.text_size = size
         self.input_width = width
+        self.fixed_width = fixed_width
+
+        self.long_count = 1
 
         self.is_outline = is_outline
         self.input_outline_size = outline_size
@@ -97,19 +98,28 @@ class Input(Element):
         self.text_surface = font_surf.render(str(text), True, self.color)
         self.text_surface.set_alpha(alpha)
         self.text_rect = self.text_surface.get_rect(topleft=get_global_size(self.input_x, self.input_y))
-        if self.text_lst:
-            self.box = Surface((self.text_rect.width + get_global_width(self.input_width), self.text_rect.height))
-        elif self.text_rect.width > self.input_width:
-            self.box = Surface((self.text_rect.width, self.text_rect.height))
+
+        if self.fixed_width:
+            if self.text_rect.width >= get_global_width(self.input_width):
+                self.box = Surface((self.text_rect.width, self.text_rect.height))
+            else:
+                self.box = Surface((get_global_width(self.input_width), self.text_rect.height))
         else:
-            self.box = Surface((get_global_width(self.input_width), self.text_rect.height))
+            if self.text_lst:
+                self.box = Surface((self.text_rect.width + get_global_width(self.input_width), self.text_rect.height))
+            else:
+                if self.text_rect.width >= get_global_width(self.input_width):
+                    self.box = Surface((self.text_rect.width, self.text_rect.height))
+                else:
+                    self.box = Surface((get_global_width(self.input_width), self.text_rect.height))
+
         self.rect = self.box.get_rect(topleft = get_global_size(self.input_x, self.input_y))
 
     def __mode(self):
         match self.input_mode:
-            case InputMode.TextInputMode:
+            case 'text':
                 self.__surface()
-            case InputMode.NumberInputMode:
+            case 'number':
                 self.__surface()
 
     def __cursor(self, ui):
@@ -214,9 +224,20 @@ class Input(Element):
         self.__add_text(text)
 
     def __add_text(self, text):
-        for t in text:
-            self.text_lst.insert(self.cursor_pos, t)
-            self.cursor_pos += 1
+        def _input():
+            for t in text:
+                self.text_lst.insert(self.cursor_pos, t)
+                self.cursor_pos += 1
+
+        font = pygame.font.Font(self.font, get_global_height(self.text_size))
+
+        i = font.size(''.join(self.text_lst) + text)[0]
+
+        if self.fixed_width:
+            if i <= self.rect.width:
+                _input()
+        else:
+            _input()
 
     def __del_text(self):
         if self.text_lst and self.cursor_pos != 0:
@@ -268,7 +289,7 @@ class Input(Element):
                 self.cursor_value[1] += 1
 
     def set_submit_func(self, func, *args, **kwargs):
-        if self.enter_mode == EnterMode.Submit:
+        if self.enter_mode == 'submit':
             self.submit_func = func
             self.args = args
             self.kwargs = kwargs
@@ -296,13 +317,13 @@ class Input(Element):
         def _input():
             def text_input():
                 match self.input_mode:
-                    case InputMode.NumberInputMode:
+                    case 'number':
                         if event.unicode in string.digits + ' _' and event.unicode != '':
                             if not self.cursor_value:
                                 self.__add_text(event.text)
                             else:
                                 self.__add_value(event.text)
-                    case InputMode.TextInputMode:
+                    case 'text':
                         if not self.cursor_value:
                             self.__add_text(event.text)
                         else:
@@ -318,9 +339,9 @@ class Input(Element):
                             self.start_delete_count.start()
                     elif event.key == pygame.K_RETURN:
                         match self.enter_mode:
-                            case EnterMode.Submit:
+                            case 'submit':
                                 self.submit_func(*self.args, **self.kwargs)
-                            case EnterMode.Text:
+                            case 'text':
                                 ...
                     elif event.mod & pygame.KMOD_CTRL:
                         if event.key == pygame.K_a:
