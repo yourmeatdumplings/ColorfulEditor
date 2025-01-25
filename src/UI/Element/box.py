@@ -14,6 +14,7 @@ class Box(Element):
         self.height = height
 
         self.box = pygame.Surface((self.width, self.height))
+        self.box.set_alpha(0)
         self.rect = self.box.get_rect()
 
     def set_width(self, __width):
@@ -34,7 +35,8 @@ class Box(Element):
     def add_y(self, __y):
         self.y += __y
     def on_draw(self, ui):
+        super().on_draw(ui)
         self.box = scale(self.box, get_global_size(self.width, self.height))
         self.rect = self.box.get_rect()
-        self.rect.topleft = get_global_size(self.x, self.y)
+        self.rect.topleft = get_global_size(self.world_x, self.world_y)
         ui.surface_display.blit(self.box, self.rect)

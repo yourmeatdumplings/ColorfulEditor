@@ -10,8 +10,8 @@ class Text(Element):
 
         super().__init__(state)
 
-        self.text_x = x
-        self.text_y = y
+        self.x = x
+        self.y = y
         self.text = text
         self.font = font
         self.color = color
@@ -23,18 +23,18 @@ class Text(Element):
 
     def set_text(self, __text):
         self.text = __text
-    def set_text_x(self, __x):
-        self.text_x = __x
-    def set_text_y(self, __y):
-        self.text_y = __y
-    def add_text_x(self, __x):
-        self.text_x += __x
-    def add_text_y(self, __y):
-        self.text_y += __y
+    def set_x(self, __x):
+        self.x = __x
+    def set_y(self, __y):
+        self.y = __y
+    def add_x(self, __x):
+        self.x += __x
+    def add_y(self, __y):
+        self.y += __y
 
     def on_draw(self, ui):
         super().on_draw(ui)
         font_surf = pygame.font.Font(self.font, get_global_height(self.text_size))
         self.text_surface = font_surf.render(str(self.text), True, self.color)
-        self.text_rect = self.text_surface.get_rect(topleft=get_global_size(self.text_x, self.text_y))
+        self.text_rect = self.text_surface.get_rect(topleft=get_global_size(self.world_x, self.world_y))
         ui.surface_display.blit(self.text_surface, self.text_rect)

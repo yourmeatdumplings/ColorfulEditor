@@ -1,5 +1,7 @@
 from src.UI import UI
+from src.UI.Element.base import Base
 from src.UI.Element.input import Input
+from src.UI.Element.text_base import TextBase
 
 class MainUI(UI):
     def __init__(self, state: bool = True):

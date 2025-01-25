@@ -1,3 +1,4 @@
+from pygame import Color
 from pygame.math import Vector2 as vec2
 
 '''
@@ -14,6 +15,7 @@ Hold down the 'Ctrl' key and click Reach.
 #display
 
 class Editor:
+    Name: str = 'ColorfulEditor'
     Version: float = 0.1
 
 class Display:
@@ -26,7 +28,7 @@ class Display:
     # it's full windows size.
     FullSize: vec2 = vec2(1920, 1080)
     # display fill color.
-    FillColor: str | tuple[int,int,int] = 'black'
+    FillColor: str | tuple[int,int,int] | Color = 'black'
     # display's title.
     Title: str = ''
 

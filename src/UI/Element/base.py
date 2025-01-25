@@ -29,9 +29,9 @@ class Base(Box):
     def on_draw(self, ui):
         super().on_draw(ui)
         self.outline_base = scale(self.outline_base, get_global_size(self.width, self.height))
-        self.outline_base_rect = self.outline_base.get_rect(topleft = get_global_size(self.x, self.y))
+        self.outline_base_rect = self.outline_base.get_rect(topleft = get_global_size(self.world_x, self.world_y))
         ui.surface_display.blit(self.outline_base, self.outline_base_rect)
 
         self.base = scale(self.base, get_global_size(self.width - 2 * self.outline_size, self.height - 2 * self.outline_size))
-        self.base_rect = self.base.get_rect(topleft = get_global_size(self.x + self.outline_size, self.y + self.outline_size))
+        self.base_rect = self.base.get_rect(topleft = get_global_size(self.world_x + self.outline_size, self.world_y + self.outline_size))
         ui.surface_display.blit(self.base, self.base_rect)

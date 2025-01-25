@@ -3,6 +3,12 @@ Json editor!
 
 ## 介绍
 
+ColorfulEditor是一款使用Json或Python编辑的游戏编辑器。
+
+### 更新
+
+详见Update文件夹。
+
 ## 库
 
 ### 使用的Python库

@@ -10,7 +10,7 @@ from src.Libs.timer import CountTimer
 from src.UI.Element import Element
 
 class Input(Element):
-    def __init__(self, default_text: str = 'InputBox', mode: str = 'text', enter_mode: str = 'submit', x: int = 0, y: int = 0, width: int = 100, fixed_width: bool = False, size: int = 20, color: str | tuple[int,int,int] | Color = 'white', is_outline: bool = True, outline_size: int = 2, outline_color: str | tuple[int,int,int] | Color= 'gray', cursor_flicker: bool = True, cursor_width: int = 2, cursor_color: str | tuple[int,int,int] | Color = 'white',cursor_flicker_interval: int = 30, start_delete: float = 0.3, delete_interval: int = 2, start_control: float = 0.3, control_interval: int = 2, choose_color: str | tuple[int,int,int] | Color = 'blue', font: str = default_font, state: bool = True):
+    def __init__(self, default_text: str = 'InputBox', mode: str = 'text', enter_mode: str = 'submit', x: int = 0, y: int = 0, width: int = 100, fixed_width: bool = False, size: int = 20, color: str | tuple[int,int,int] | Color = 'white', default_text_color: str | tuple[int,int,int] | Color = 'gray', bg_color: str | tuple[int,int,int] | Color | None = None, is_outline: bool = True, outline_size: int = 3, outline_color: str | tuple[int,int,int] | Color= 'gray', cursor_flicker: bool = True, cursor_width: int = 2, cursor_color: str | tuple[int,int,int] | Color = 'white',cursor_flicker_interval: int = 30, start_delete: float = 0.3, delete_interval: int = 2, start_control: float = 0.3, control_interval: int = 2, choose_color: str | tuple[int,int,int] | Color = 'blue', font: str = default_font, state: bool = True):
         super().__init__(state)
 
         self.config: dict[str: Any] = {
@@ -21,8 +21,8 @@ class Input(Element):
 
         self.input_mode = mode
         self.enter_mode = enter_mode
-        self.input_x = x
-        self.input_y = y
+        self.x = x
+        self.y = y
         self.default_text = default_text
         self.text_lst: list[str] = []
         self.font = font
@@ -30,6 +30,8 @@ class Input(Element):
         self.text_size = size
         self.input_width = width
         self.fixed_width = fixed_width
+        self.default_text_color = default_text_color
+        self.bg_color = bg_color
 
         self.long_count = 1
 
@@ -68,14 +70,14 @@ class Input(Element):
     @property
     def text(self):
         return ''.join(self.text_lst)
-    def set_input_x(self, __x):
-        self.input_x = __x
-    def set_input_y(self, __y):
-        self.input_y = __y
-    def add_input_x(self, __x):
-        self.input_x += __x
-    def add_input_y(self, __y):
-        self.input_y += __y
+    def set_x(self, __x):
+        self.x = __x
+    def set_y(self, __y):
+        self.y = __y
+    def add_x(self, __x):
+        self.x += __x
+    def add_y(self, __y):
+        self.y += __y
     def get_config(self):
         for key, value in self.config.items():
             print(f'{key}: {value}')
@@ -89,15 +91,14 @@ class Input(Element):
     def __surface(self):
         if self.text_lst:
             text = ''.join(self.text_lst)
-            alpha = 255
+            color = self.color
         else:
             text = self.default_text
-            alpha = 100
+            color = self.default_text_color
 
         font_surf = pygame.font.Font(self.font, get_global_height(self.text_size))
-        self.text_surface = font_surf.render(str(text), True, self.color)
-        self.text_surface.set_alpha(alpha)
-        self.text_rect = self.text_surface.get_rect(topleft=get_global_size(self.input_x, self.input_y))
+        self.text_surface = font_surf.render(str(text), True, color, None)
+        self.text_rect = self.text_surface.get_rect(topleft=get_global_size(self.world_x, self.world_y))
 
         if self.fixed_width:
             if self.text_rect.width >= get_global_width(self.input_width):
@@ -113,7 +114,12 @@ class Input(Element):
                 else:
                     self.box = Surface((get_global_width(self.input_width), self.text_rect.height))
 
-        self.rect = self.box.get_rect(topleft = get_global_size(self.input_x, self.input_y))
+        self.rect = self.box.get_rect(topleft = get_global_size(self.world_x, self.world_y))
+        if self.bg_color:
+            self.box.set_alpha(255)
+            self.box.fill(self.bg_color)
+        else:
+            self.box.set_alpha(0)
 
     def __mode(self):
         match self.input_mode:
@@ -212,7 +218,7 @@ class Input(Element):
         if self.active and self.is_outline:
             size = get_global_width(self.input_outline_size)
             color = self.input_outline_color
-            x, y = get_global_size(self.input_x, self.input_y)
+            x, y = get_global_size(self.world_x, self.world_y)
 
             pygame.draw.line(ui.surface_display, color, (x, y), (x + self.rect.width, y), width=size)
             pygame.draw.line(ui.surface_display, color, (x, y + self.rect.height),(x + self.rect.width, y + self.rect.height), width=size)

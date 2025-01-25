@@ -41,3 +41,4 @@ class UI:
         for elem in self.elements.values():
             if elem.state:
                 elem.on_draw(self)
+                elem.draw_son(self)

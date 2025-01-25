@@ -1,4 +1,7 @@
-from src import default_font
+import pygame
+
+from src import default_font, get_global_height
+from src.Libs.display import get_global_size
 from src.UI.Element.base import Base
 from src.UI.Element.box import Box
 from src.UI.Element.text import Text
@@ -11,6 +14,11 @@ class TextBase(Base, Text):
 
         self.__text_x = text_x
         self.__text_y = text_y
+
+        self.text_x = text_x
+        self.text_y = text_y
+        self.world_text_x = text_x
+        self.world_text_y = text_x
 
         self.text_style = text_style
 
@@ -53,4 +61,12 @@ class TextBase(Base, Text):
         self.__style()
         super().on_draw(ui)
         if self.text_state:
-            super(Box, self).on_draw(ui)
+            if self.parent:
+                self.world_text_x, self.world_text_y =  (self.text_x + self.out_x + self.parent.world_x, self.text_y + self.out_y + self.parent.world_y)
+            else:
+                self.world_text_x, self.world_text_y = self.x, self.y
+
+            font_surf = pygame.font.Font(self.font, get_global_height(self.text_size))
+            self.text_surface = font_surf.render(str(self.text), True, self.color)
+            self.text_rect = self.text_surface.get_rect(topleft=get_global_size(self.world_text_x, self.world_text_y))
+            ui.surface_display.blit(self.text_surface, self.text_rect)
